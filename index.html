@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quiz Wheel</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__left">
+        <button id="themeToggle" class="pillBtn" type="button" aria-label="Toggle dark mode">
+          <span id="themeToggleIcon" aria-hidden="true">🌙</span>
+          <span id="themeToggleText" class="pillBtn__text">Dark</span>
+        </button>
+
+        <button id="langToggle" class="pillBtn" type="button" aria-label="Switch language">
+          <span id="langToggleIcon" aria-hidden="true">🌐</span>
+          <span id="langToggleText" class="pillBtn__text">العربية</span>
+        </button>
+      </div>
+
+      <div class="topbar__right">
+        <div class="logo" aria-label="Quiz Wheel logo">
+          <span class="logo__mark" aria-hidden="true">🎡</span>
+          <span class="logo__text" data-i18n="brand">Quiz Wheel</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="wheelSection" aria-label="Spinning wheel section">
+        <div class="wheelPanel">
+          <div class="wheelWrapper" id="wheelWrapper">
+            <div class="wheelPointer" aria-hidden="true"></div>
+            <canvas id="wheelCanvas" role="img" aria-label="Quiz wheel"></canvas>
+
+            <div id="wheelCenterOverlay" class="wheelCenterOverlay" aria-live="polite">
+              <div class="wheelCenterInner">
+                <div id="wheelSelectedIcon" class="wheelCenterIcon" aria-hidden="true">⭐</div>
+                <div id="wheelSelectedName" class="wheelCenterName"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wheelActions">
+            <button id="spinBtn" class="spinBtn" type="button">
+              <span id="spinBtnText" data-i18n="spin">Spin</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="questionSection" aria-label="Questions section">
+        <div class="questionCard" id="questionCard">
+          <div class="questionCard__top">
+            <h2 class="questionCard__title" data-i18n="questionTitle">Question</h2>
+            <div id="questionMeta" class="questionMeta" aria-live="polite"></div>
+          </div>
+
+          <p id="questionText" class="questionText" aria-live="polite"></p>
+
+          <div id="choices" class="choices" role="group" aria-label="Answer choices"></div>
+          <div id="feedback" class="feedback" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./data.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
+
