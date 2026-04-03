@@ -77,7 +77,16 @@
       categoryLabel: "Category",
       clickWheel: "Click the wheel to start!",
       correct: "Correct!",
-      wrong: "Wrong!"
+      wrong: "Wrong!",
+      timeUp: "Time's up!",
+      homeText: "Enter number of players (2-5). Each player gives 5 turns.",
+      playerCountLabel: "Number of players",
+      startRound: "Start Round",
+      playerTurn: "Player {player} • Turn {turn}/{total}",
+      timer: "Timer: {seconds}s",
+      winnerPrefix: "Winner: ",
+      tiePrefix: "Tie:",
+      pointsText: "points"
     },
     ar: {
       brand: "عجلة الاختبار",
@@ -89,7 +98,16 @@
       categoryLabel: "التصنيف",
       clickWheel: "اضغط على العجلة للبدء!",
       correct: "إجابة صحيحة!",
-      wrong: "إجابة خاطئة!"
+      wrong: "إجابة خاطئة!",
+      timeUp: "انتهى الوقت!",
+      homeText: "أدخل عدد اللاعبين (2-5). كل لاعب يحصل على 5 جولات.",
+      playerCountLabel: "عدد اللاعبين",
+      startRound: "ابدأ الجولة",
+      playerTurn: "اللاعب {player} • الجولة {turn}/{total}",
+      timer: "الوقت المتبقي: {seconds}s",
+      winnerPrefix: "الفائز: ",
+      tiePrefix: "تعادل:",
+      pointsText: "نقاط"
     }
   };
 
@@ -185,6 +203,16 @@
     } else {
       els.questionText.textContent = i18n[state.lang].clickWheel;
       typesetMath();
+    }
+
+    // Update round status and timer for new language
+    if (state.roundActive) {
+      updateRoundStatus();
+      if (!state.questionTimerId) {
+        els.timerInfo.textContent = i18n[state.lang].timer.replace("{seconds}", 15);
+      }
+    } else {
+      showHomeScreen();
     }
   }
 
@@ -463,18 +491,41 @@
     });
   }
 
+  function revealCorrectAnswer() {
+    const correctIndex = state.currentQuestion ? state.currentQuestion.correctAnswer : null;
+    if (correctIndex == null) return;
+
+    els.choices.querySelectorAll("button").forEach((btn) => {
+      const idx = Number(btn.dataset.choiceIndex);
+      if (idx === correctIndex) {
+        btn.classList.add("correct");
+      } else {
+        btn.classList.add("wrong");
+      }
+      btn.disabled = true;
+    });
+  }
+
   function showHomeScreen() {
+    const t = i18n[state.lang];
     state.roundActive = false;
     els.homeSection.classList.remove("hidden");
     els.gameArea.classList.add("hidden");
     els.spinBtn.disabled = true;
     els.homeFeedback.textContent = "";
-    els.turnInfo.textContent = "Turn 0/0";
-    els.timerInfo.textContent = "Timer: 15s";
+    els.turnInfo.textContent = t.playerTurn
+      .replace("{player}", 0)
+      .replace("{turn}", 0)
+      .replace("{total}", 0);
+    els.timerInfo.textContent = t.timer.replace("{seconds}", 15);
   }
 
   function updateRoundStatus() {
-    els.turnInfo.textContent = `Player ${state.currentPlayer} • Turn ${state.currentTurn}/${state.turnsTotal}`;
+    const t = i18n[state.lang];
+    els.turnInfo.textContent = t.playerTurn
+      .replace("{player}", state.currentPlayer)
+      .replace("{turn}", state.currentTurn)
+      .replace("{total}", state.turnsTotal);
   }
 
   function stopQuestionTimer() {
@@ -487,11 +538,11 @@
   function startQuestionTimer() {
     stopQuestionTimer();
     let remaining = 15;
-    els.timerInfo.textContent = `Timer: ${remaining}s`;
+    els.timerInfo.textContent = i18n[state.lang].timer.replace("{seconds}", remaining);
     state.questionTimerId = setInterval(() => {
       remaining -= 1;
       if (remaining >= 0) {
-        els.timerInfo.textContent = `Timer: ${remaining}s`;
+        els.timerInfo.textContent = i18n[state.lang].timer.replace("{seconds}", remaining);
       }
       if (remaining <= 0) {
         stopQuestionTimer();
@@ -565,7 +616,7 @@
     els.questionMeta.textContent = "";
     els.choices.innerHTML = "";
     els.spinBtn.disabled = false;
-    els.timerInfo.textContent = "Timer: 15s";
+    els.timerInfo.textContent = i18n[state.lang].timer.replace("{seconds}", 15);
   }
 
   function startRound() {
@@ -612,10 +663,11 @@
   async function onQuestionTimeout() {
     if (state.phase !== "question") return;
 
-    disableAnswerButtons(true);
+    revealCorrectAnswer();
     els.feedback.classList.remove("good");
     els.feedback.classList.add("bad");
-    els.feedback.textContent = "Time's up! Wrong answer.";
+    const t = i18n[state.lang];
+    els.feedback.textContent = `${t.timeUp} ${t.wrong}`;
     await playWrongSound();
 
     // Mark current question as asked (if set)
@@ -623,7 +675,10 @@
       state.askedQuestions.add(`${state.currentCategoryIndex}-${state.currentQuestionIndex}`);
     }
 
-    handleTurnComplete();
+    // Delay to show the correct answer before proceeding
+    setTimeout(() => {
+      handleTurnComplete();
+    }, 2000);
   }
 
   function renderQuestion(question, category) {
@@ -726,7 +781,7 @@
     // Prepare next turn; enough feedback time to read it.
     setTimeout(() => {
       handleTurnComplete();
-    }, 1200);
+    }, 2000);
   }
 
   function computeSelectedIndexFromRotationMod(rotationModDeg) {
