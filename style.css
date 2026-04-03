@@ -226,8 +226,8 @@ html[dir="rtl"] .topbar__right{ order: 1; }
   height: 0;
   border-left: 13px solid transparent;
   border-right: 13px solid transparent;
-  border-bottom: 26px solid rgba(209, 169, 93, .95);
-  box-shadow: 0 8px 12px rgba(0,0,0,.35);
+  border-bottom: 26px solid #c49b4f; /* flat color, no transparent highlight */
+  box-shadow: none; /* remove bright spot effect */
   z-index:3;
 }
 

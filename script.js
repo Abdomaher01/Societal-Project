@@ -154,12 +154,19 @@
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     applyTranslations();
 
-    // Re-render wheel + question language content.
+    // Re-render wheel + center label + question language content in-place, without changing question.
     wheelUI.render();
+    const centerIndex = state.currentCategoryIndex != null ? state.currentCategoryIndex : state.selectedCategoryIndex;
+    if (centerIndex != null) {
+      updateCenterContent(centerIndex);
+    }
+
     if (state.currentQuestion && state.currentCategoryIndex != null) {
-      showQuestionForCategory(state.currentCategoryIndex);
+      const category = state.categories[state.currentCategoryIndex];
+      renderQuestion(state.currentQuestion, category);
     } else {
       els.questionText.textContent = i18n[state.lang].clickWheel;
+      typesetMath();
     }
   }
 
@@ -454,6 +461,20 @@
       btn.dataset.choiceIndex = String(idx);
       els.choices.appendChild(btn);
     });
+
+    // Render LaTeX math expressions if MathJax is loaded.
+    typesetMath();
+  }
+
+  function typesetMath() {
+    if (window.MathJax && typeof MathJax.typesetPromise === "function") {
+      MathJax.typesetPromise([els.questionText, els.questionMeta, els.choices]).catch((error) => {
+        console.warn("MathJax typeset failed:", error);
+      });
+    } else {
+      // Retry until MathJax is loaded.
+      setTimeout(typesetMath, 80);
+    }
   }
 
   function showQuestionForCategory(categoryIndex) {
@@ -654,6 +675,7 @@
     els.questionText.textContent = i18n[state.lang].clickWheel;
     updateCenterContent(0);
     updateCenterRotation(0, true);
+    typesetMath();
 
     // Canvas
     wheelUI.init();
