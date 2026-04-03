@@ -50,7 +50,7 @@
 
   const i18n = {
     en: {
-      brand: "Quiz Wheel",
+      brand: "TreeVenture",
       spin: "Spin",
       themeDark: "Dark",
       themeLight: "Light",
