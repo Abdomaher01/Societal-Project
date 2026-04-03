@@ -29,41 +29,63 @@
     </header>
 
     <main class="page">
-      <section class="wheelSection" aria-label="Spinning wheel section">
-        <div class="wheelPanel">
-          <div class="wheelWrapper" id="wheelWrapper">
-            <div class="wheelPointer" aria-hidden="true"></div>
-            <canvas id="wheelCanvas" role="img" aria-label="Quiz wheel"></canvas>
+      <section id="homeSection" class="homeSection" aria-label="Game home screen">
+        <div class="homeCard">
+          <h1 class="homeTitle">TreeVenture Game</h1>
+          <p class="homeText">Enter number of players (2-5). Each player gives 5 turns.</p>
+          <label class="homeLabel" for="playerCountInput">Number of players</label>
+          <input id="playerCountInput" class="homeInput" type="number" min="2" max="5" value="2" />
+          <button id="startRoundBtn" class="spinBtn" type="button">Start Round</button>
+          <p id="homeFeedback" class="feedback"></p>
+          <p id="roundWinner" class="winnerText"></p>
+        </div>
+      </section>
 
-            <div id="wheelCenterOverlay" class="wheelCenterOverlay" aria-live="polite">
-              <div class="wheelCenterInner">
-                <div id="wheelSelectedIcon" class="wheelCenterIcon" aria-hidden="true">⭐</div>
-                <div id="wheelSelectedName" class="wheelCenterName"></div>
+      <div id="gameArea" class="hidden">
+        <section class="roundStatus" aria-label="Round status">
+          <div class="roundInfo">
+            <span id="turnInfo">Turn 0/0</span>
+            <span class="roundSeparator">·</span>
+            <span id="timerInfo">Timer: 30s</span>
+          </div>
+        </section>
+
+        <section class="wheelSection" aria-label="Spinning wheel section">
+          <div class="wheelPanel">
+            <div class="wheelWrapper" id="wheelWrapper">
+              <div class="wheelPointer" aria-hidden="true"></div>
+              <canvas id="wheelCanvas" role="img" aria-label="Quiz wheel"></canvas>
+
+              <div id="wheelCenterOverlay" class="wheelCenterOverlay" aria-live="polite">
+                <div class="wheelCenterInner">
+                  <div id="wheelSelectedIcon" class="wheelCenterIcon" aria-hidden="true">⭐</div>
+                  <div id="wheelSelectedName" class="wheelCenterName"></div>
+                </div>
               </div>
             </div>
+
+            <div class="wheelActions">
+              <button id="spinBtn" class="spinBtn" type="button">
+                <span id="spinBtnText" data-i18n="spin">Spin</span>
+              </button>
+            </div>
           </div>
+        </section>
 
-          <div class="wheelActions">
-            <button id="spinBtn" class="spinBtn" type="button">
-              <span id="spinBtnText" data-i18n="spin">Spin</span>
-            </button>
+        <section class="questionSection" aria-label="Questions section">
+          <div class="questionCard" id="questionCard">
+            <div class="questionCard__top">
+              <h2 class="questionCard__title" data-i18n="questionTitle">Question</h2>
+              <div id="questionMeta" class="questionMeta" aria-live="polite"></div>
+            </div>
+
+            <p id="questionText" class="questionText" aria-live="polite"></p>
+
+            <div id="choices" class="choices" role="group" aria-label="Answer choices"></div>
+            <div id="feedback" class="feedback" aria-live="polite"></div>
           </div>
-        </div>
-      </section>
-
-      <section class="questionSection" aria-label="Questions section">
-        <div class="questionCard" id="questionCard">
-          <div class="questionCard__top">
-            <h2 class="questionCard__title" data-i18n="questionTitle">Question</h2>
-            <div id="questionMeta" class="questionMeta" aria-live="polite"></div>
-          </div>
-
-          <p id="questionText" class="questionText" aria-live="polite"></p>
-
-          <div id="choices" class="choices" role="group" aria-label="Answer choices"></div>
-          <div id="feedback" class="feedback" aria-live="polite"></div>
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
 
     <script src="./data.js"></script>

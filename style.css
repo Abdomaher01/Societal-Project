@@ -322,6 +322,127 @@ body.dark .wheelCenterOverlay{
 .spinBtn:focus-visible{ outline: 3px solid rgba(255,255,255,.35); outline-offset: 2px; }
 .spinBtn[disabled]{ opacity:.55; cursor:not-allowed; }
 
+.homeSection,
+.roundStatus {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.homeCard {
+  width: min(92vw, 540px);
+  background: linear-gradient(140deg, rgba(255,255,255,.94), rgba(234,216,176,.95));
+  border: 1px solid rgba(115,90,45,.3);
+  border-radius: calc(var(--radius) + 8px);
+  box-shadow: var(--shadow);
+  padding: 22px 18px 24px;
+  text-align: center;
+}
+
+.homeTitle {
+  margin: 0 0 8px;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 900;
+  color: #3e2c1a;
+}
+
+.homeText,
+.homeLabel,
+#turnInfo,
+#timerInfo {
+  margin: 4px 0;
+  color: #3d2e1c;
+  font-weight: 700;
+}
+
+.homeText {
+  margin-bottom: 14px;
+}
+
+.homeLabel {
+  display:block;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.homeInput {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(107,78,34,.47);
+  font-size: 17px;
+}
+
+#startRoundBtn {
+  margin-top: 20px; /* push button down */
+  width: 100%;
+  max-width: 240px;
+}
+
+.homeCard {
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.homeInput {
+  width: calc(100% - 8px);
+}
+
+.winnerText {
+  margin-top: 8px;
+  color: #704a17; /* coffee color */
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+body.dark .winnerText {
+  color: #704a17;
+}
+
+.roundInfo {
+  width: min(92vw, 760px);
+  color: #704a17; /* coffee tone for light mode */
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: .2px;
+}
+
+#turnInfo,
+#timerInfo {
+  color: #f6f1dc; /* milk tone */
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.roundSeparator {
+  color: #704a17; /* coffee tone for both modes */
+  padding: 0 8px;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+body.dark #turnInfo,
+body.dark #timerInfo {
+  color: #f6f1dc; /* milk tone in dark as well */
+}
+
+body.dark .roundSeparator {
+  color: #704a17;
+}
+
+body.dark .roundInfo {
+  color: #ffffff; /* fallback old text style */
+}
+
+.hidden{ display: none !important; }
+
 .questionSection{
   padding: 8px 0 30px;
   display:flex;

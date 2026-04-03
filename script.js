@@ -21,6 +21,13 @@
     wheelSelectedIcon: document.getElementById("wheelSelectedIcon"),
     wheelSelectedName: document.getElementById("wheelSelectedName"),
 
+    startRoundBtn: document.getElementById("startRoundBtn"),
+    playerCountInput: document.getElementById("playerCountInput"),
+    homeFeedback: document.getElementById("homeFeedback"),
+    homeSection: document.getElementById("homeSection"),
+    gameArea: document.getElementById("gameArea"),
+    turnInfo: document.getElementById("turnInfo"),
+    timerInfo: document.getElementById("timerInfo"),
     spinBtn: document.getElementById("spinBtn"),
 
     questionTitle: document.querySelector(".questionCard__title"),
@@ -42,6 +49,17 @@
 
     currentCategoryIndex: null,
     currentQuestion: null,
+    currentQuestionIndex: null,
+
+    // round game state
+    roundActive: false,
+    playerCount: 1,
+    playerScores: [],
+    currentPlayer: 1,
+    turnsTotal: 0,
+    currentTurn: 0,
+    askedQuestions: new Set(),
+    questionTimerId: null,
 
     // wheel rotation at rest (normalized) and during animation (can include full rotations)
     wheelRotationModDeg: 0,
@@ -445,6 +463,169 @@
     });
   }
 
+  function showHomeScreen() {
+    state.roundActive = false;
+    els.homeSection.classList.remove("hidden");
+    els.gameArea.classList.add("hidden");
+    els.spinBtn.disabled = true;
+    els.homeFeedback.textContent = "";
+    els.turnInfo.textContent = "Turn 0/0";
+    els.timerInfo.textContent = "Timer: 15s";
+  }
+
+  function updateRoundStatus() {
+    els.turnInfo.textContent = `Player ${state.currentPlayer} • Turn ${state.currentTurn}/${state.turnsTotal}`;
+  }
+
+  function stopQuestionTimer() {
+    if (state.questionTimerId) {
+      clearInterval(state.questionTimerId);
+      state.questionTimerId = null;
+    }
+  }
+
+  function startQuestionTimer() {
+    stopQuestionTimer();
+    let remaining = 15;
+    els.timerInfo.textContent = `Timer: ${remaining}s`;
+    state.questionTimerId = setInterval(() => {
+      remaining -= 1;
+      if (remaining >= 0) {
+        els.timerInfo.textContent = `Timer: ${remaining}s`;
+      }
+      if (remaining <= 0) {
+        stopQuestionTimer();
+        onQuestionTimeout();
+      }
+    }, 1000);
+  }
+
+  function getAvailableCategoryIndex(preferredIndex) {
+    const total = state.categories.length;
+    const start = preferredIndex != null ? preferredIndex : 0;
+    for (let offset = 0; offset < total; offset += 1) {
+      const idx = (start + offset) % total;
+      const category = state.categories[idx];
+      if (!category) continue;
+      const hasLeft = category.questions.some((_, qIdx) => !state.askedQuestions.has(`${idx}-${qIdx}`));
+      if (hasLeft) return idx;
+    }
+    return null;
+  }
+
+  function chooseQuestionFromCategory(categoryIndex) {
+    const category = state.categories[categoryIndex];
+    if (!category) return null;
+    const available = category.questions
+      .map((q, qIdx) => ({ q, qIdx }))
+      .filter(({qIdx}) => !state.askedQuestions.has(`${categoryIndex}-${qIdx}`));
+    if (!available.length) return null;
+    const pick = available[Math.floor(Math.random() * available.length)];
+    return { question: pick.q, categoryIndex, questionIndex: pick.qIdx };
+  }
+
+  function completeRound() {
+    stopQuestionTimer();
+    state.roundActive = false;
+
+    const maxScore = Math.max(...state.playerScores);
+    const winners = state.playerScores
+      .map((score, idx) => ({ score, player: idx + 1 }))
+      .filter((item) => item.score === maxScore)
+      .map((item) => `Player ${item.player}`);
+
+    const scoreText = state.playerScores.map((score, idx) => `Player ${idx + 1}: ${score} points`).join(", ");
+    const winnerText = winners.length === 1 ? `${scoreText}. Winner: ${winners[0]}!` : `${scoreText}. Tie: ${winners.join(", ")}!`;
+
+    document.getElementById("roundWinner").textContent = winnerText;
+
+    els.homeSection.classList.remove("hidden");
+    els.gameArea.classList.add("hidden");
+    els.spinBtn.disabled = true;
+    els.questionText.textContent = i18n[state.lang].clickWheel;
+    els.feedback.textContent = "";
+  }
+
+  function handleTurnComplete() {
+    stopQuestionTimer();
+    state.currentTurn += 1;
+    updateRoundStatus();
+
+    const totalQuestions = state.categories.reduce((sum, c) => sum + (c.questions ? c.questions.length : 0), 0);
+    if (state.currentTurn > state.turnsTotal || state.askedQuestions.size >= totalQuestions) {
+      completeRound();
+      return;
+    }
+
+    state.phase = "idle";
+    state.currentPlayer = (state.currentPlayer % state.playerCount) + 1;
+    updateRoundStatus();
+    els.feedback.textContent = "";
+    els.questionText.textContent = "Spin the wheel for the next question.";
+    els.questionMeta.textContent = "";
+    els.choices.innerHTML = "";
+    els.spinBtn.disabled = false;
+    els.timerInfo.textContent = "Timer: 15s";
+  }
+
+  function startRound() {
+    const players = Number(els.playerCountInput.value);
+    if (!Number.isInteger(players) || players < 2 || players > 5) {
+      els.homeFeedback.textContent = "Please enter an integer from 2 to 5.";
+      return;
+    }
+
+    state.playerCount = players;
+    state.playerScores = new Array(players).fill(0);
+    state.currentPlayer = 1;
+    state.turnsTotal = players * 5;
+    const totalQuestions = state.categories.reduce((sum, c) => sum + (c.questions ? c.questions.length : 0), 0);
+    if (state.turnsTotal > totalQuestions) {
+      state.turnsTotal = totalQuestions;
+      els.homeFeedback.textContent = `Only ${totalQuestions} unique questions available; round turns adjusted to ${totalQuestions}.`;
+    }
+    state.currentTurn = 1;
+    state.askedQuestions = new Set();
+    state.roundActive = true;
+    state.phase = "idle";
+    state.currentCategoryIndex = null;
+    state.currentQuestion = null;
+    state.currentQuestionIndex = null;
+
+    els.homeSection.classList.add("hidden");
+    els.gameArea.classList.remove("hidden");
+    // make sure visible wheel has exact device-scaled resolution
+    wheelUI.resize();
+    wheelUI.render();
+
+    els.feedback.textContent = "";
+    document.getElementById("roundWinner").textContent = "";
+
+    updateRoundStatus();
+    els.questionText.textContent = "Spin the wheel to get your first question.";
+    els.questionMeta.textContent = "";
+    els.choices.innerHTML = "";
+    els.spinBtn.disabled = false;
+    els.homeFeedback.textContent = "";
+  }
+
+  async function onQuestionTimeout() {
+    if (state.phase !== "question") return;
+
+    disableAnswerButtons(true);
+    els.feedback.classList.remove("good");
+    els.feedback.classList.add("bad");
+    els.feedback.textContent = "Time's up! Wrong answer.";
+    await playWrongSound();
+
+    // Mark current question as asked (if set)
+    if (state.currentCategoryIndex != null && state.currentQuestionIndex != null) {
+      state.askedQuestions.add(`${state.currentCategoryIndex}-${state.currentQuestionIndex}`);
+    }
+
+    handleTurnComplete();
+  }
+
   function renderQuestion(question, category) {
     const t = i18n[state.lang];
     els.questionMeta.textContent = `${t.categoryLabel}: ${category.name[state.lang] || category.name.en || ""}`;
@@ -478,18 +659,29 @@
   }
 
   function showQuestionForCategory(categoryIndex) {
-    const category = state.categories[categoryIndex];
-    if (!category) return;
+    const availableIndex = getAvailableCategoryIndex(categoryIndex);
+    if (availableIndex == null) {
+      completeRound();
+      return;
+    }
 
-    state.currentCategoryIndex = categoryIndex;
-    state.currentQuestion = pickRandom(category.questions);
+    const chosen = chooseQuestionFromCategory(availableIndex);
+    if (!chosen) {
+      completeRound();
+      return;
+    }
 
-    renderQuestion(state.currentQuestion, category);
+    state.currentCategoryIndex = availableIndex;
+    state.currentQuestion = chosen.question;
+    state.currentQuestionIndex = chosen.questionIndex;
 
-    // Disable spin during answering (strict requirement).
+    renderQuestion(state.currentQuestion, state.categories[availableIndex]);
+
     state.phase = "question";
     els.spinBtn.disabled = true;
     disableAnswerButtons(false);
+
+    startQuestionTimer();
   }
 
   async function onChooseAnswer(choiceIndex) {
@@ -512,10 +704,13 @@
     });
 
     const isCorrect = choiceIndex === correctIndex;
+    stopQuestionTimer();
+
     if (isCorrect) {
       els.feedback.classList.remove("bad");
       els.feedback.classList.add("good");
       els.feedback.textContent = i18n[state.lang].correct;
+      state.playerScores[state.currentPlayer - 1] += 1;
       await playCorrectSound();
     } else {
       els.feedback.classList.remove("good");
@@ -524,10 +719,14 @@
       await playWrongSound();
     }
 
-    // Now allow spinning again.
-    state.phase = "idle";
-    state.currentQuestion = null;
-    els.spinBtn.disabled = false;
+    if (state.currentCategoryIndex != null && state.currentQuestionIndex != null) {
+      state.askedQuestions.add(`${state.currentCategoryIndex}-${state.currentQuestionIndex}`);
+    }
+
+    // Prepare next turn; enough feedback time to read it.
+    setTimeout(() => {
+      handleTurnComplete();
+    }, 1200);
   }
 
   function computeSelectedIndexFromRotationMod(rotationModDeg) {
@@ -539,9 +738,15 @@
   }
 
   function startSpin() {
+    if (!state.roundActive) return;
     if (state.phase === "spinning") return;
     if (!state.categories.length) return;
     if (state.phase === "question") return; // strict: disable while answering
+    if (!state.roundActive) return;
+    if (state.currentTurn > state.turnsTotal) {
+      completeRound();
+      return;
+    }
 
     const n = state.categories.length;
     const segAngleDeg = 360 / n;
@@ -622,6 +827,11 @@
   }
 
   function initInteractions() {
+    els.startRoundBtn.addEventListener("click", startRound);
+    els.playerCountInput.addEventListener("input", () => {
+      els.homeFeedback.textContent = "";
+    });
+
     els.spinBtn.addEventListener("click", startSpin);
     els.wheelWrapper.addEventListener("click", (e) => {
       // Ignore clicks on buttons (none inside wrapper) but keep gesture consistent.
@@ -697,6 +907,7 @@
 
     initInteractions();
     applyTranslations();
+    showHomeScreen();
   }
 
   if (document.readyState === "loading") {
