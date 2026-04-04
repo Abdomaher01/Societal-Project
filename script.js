@@ -89,7 +89,7 @@
       pointsText: "points"
     },
     ar: {
-      brand: "عجلة الاختبار",
+      brand: "شجرة المغامرات",
       spin: "تدوير",
       themeDark: "داكن",
       themeLight: "فاتح",
@@ -197,7 +197,7 @@
       updateCenterContent(centerIndex);
     }
 
-    if (state.currentQuestion && state.currentCategoryIndex != null) {
+    if (state.phase === "question" && state.currentQuestion && state.currentCategoryIndex != null) {
       const category = state.categories[state.currentCategoryIndex];
       renderQuestion(state.currentQuestion, category);
     } else {
@@ -610,6 +610,8 @@
 
     state.phase = "idle";
     state.currentPlayer = (state.currentPlayer % state.playerCount) + 1;
+    state.currentQuestion = null;
+    state.currentQuestionIndex = null;
     updateRoundStatus();
     els.feedback.textContent = "";
     els.questionText.textContent = "Spin the wheel for the next question.";
@@ -810,6 +812,10 @@
     disableAnswerButtons(true);
     els.feedback.textContent = "";
 
+    // Disable toggles during spinning
+    els.langToggle.disabled = true;
+    els.themeToggle.disabled = true;
+
     // Choose a random category and a small random offset inside that slice
     // to guarantee the final angle is not landing on an exact boundary.
     const chosenIndex = Math.floor(Math.random() * n);
@@ -876,6 +882,10 @@
 
       // Show question after wheel stops.
       showQuestionForCategory(selectedFromRotation);
+
+      // Re-enable toggles after spinning
+      els.langToggle.disabled = false;
+      els.themeToggle.disabled = false;
     }
 
     window.requestAnimationFrame(frame);
