@@ -88,7 +88,9 @@
       winnerPrefix: "Winner: ",
       tiePrefix: "Tie:",
       pointsText: "points",
-      luckyCard: "Lucky Card"
+      luckyCard: "Lucky Card",
+      spinForNext: "Spin the wheel for the next question.",
+      spinForFirst: "Spin the wheel to get your first question."
     },
     ar: {
       brand: "شجرة المغامرات",
@@ -110,7 +112,9 @@
       winnerPrefix: "الفائز: ",
       tiePrefix: "تعادل:",
       pointsText: "نقاط",
-      luckyCard: "كارت الحظ"
+      luckyCard: "كارت الحظ",
+      spinForNext: "ادر العجلة للحصول على السؤال التالي.",
+      spinForFirst: "ادر العجلة للحصول على سؤالك الأول."
     }
   };
 
@@ -606,7 +610,7 @@
     state.currentQuestionIndex = null;
     updateRoundStatus();
     els.feedback.textContent = "";
-    els.questionText.textContent = "Spin the wheel for the next question.";
+    els.questionText.textContent = i18n[state.lang].spinForNext;
     els.questionMeta.textContent = "";
     els.choices.innerHTML = "";
     els.spinBtn.disabled = false;
@@ -647,7 +651,7 @@
     document.getElementById("roundWinner").textContent = "";
 
     updateRoundStatus();
-    els.questionText.textContent = "Spin the wheel to get your first question.";
+    els.questionText.textContent = i18n[state.lang].spinForFirst;
     els.questionMeta.textContent = "";
     els.choices.innerHTML = "";
     els.spinBtn.disabled = false;
