@@ -37,9 +37,9 @@
       <section id="homeSection" class="homeSection" aria-label="Game home screen">
         <div class="homeCard">
           <h1 class="homeTitle">TreeVenture Game</h1>
-          <p class="homeText" data-i18n="homeText">Enter number of players (2-5). Each player gives 5 turns.</p>
-          <label class="homeLabel" for="playerCountInput" data-i18n="playerCountLabel">Number of players</label>
-          <input id="playerCountInput" class="homeInput" type="number" min="2" max="5" value="2" />
+          <p class="homeText" data-i18n="homeText">Enter number of players (2-4). Each player gives 5 turns.</p>
+          <label class="homeLabel" for="playerCountLabel" data-i18n="playerCountLabel">Number of players</label>
+          <input id="playerCountInput" class="homeInput" type="number" min="2" max="4" value="2" />
           <button id="startRoundBtn" class="spinBtn" type="button" data-i18n="startRound">Start Round</button>
           <p id="homeFeedback" class="feedback"></p>
           <p id="roundWinner" class="winnerText"></p>
@@ -68,6 +68,8 @@
                 </div>
               </div>
             </div>
+
+            <div id="luckyCardContainer" class="luckyCardContainer hidden"></div>
 
             <div class="wheelActions">
               <button id="spinBtn" class="spinBtn" type="button">

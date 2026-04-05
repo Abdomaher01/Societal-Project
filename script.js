@@ -34,7 +34,8 @@
     questionMeta: document.getElementById("questionMeta"),
     questionText: document.getElementById("questionText"),
     choices: document.getElementById("choices"),
-    feedback: document.getElementById("feedback")
+    feedback: document.getElementById("feedback"),
+    luckyCardContainer: document.getElementById("luckyCardContainer")
   };
 
   const state = {
@@ -79,14 +80,15 @@
       correct: "Correct!",
       wrong: "Wrong!",
       timeUp: "Time's up!",
-      homeText: "Enter number of players (2-5). Each player gives 5 turns.",
+      homeText: "Enter number of players (2-4). Each player gives 5 turns.",
       playerCountLabel: "Number of players",
       startRound: "Start Round",
       playerTurn: "Player {player} • Turn {turn}/{total}",
       timer: "Timer: {seconds}s",
       winnerPrefix: "Winner: ",
       tiePrefix: "Tie:",
-      pointsText: "points"
+      pointsText: "points",
+      luckyCard: "Lucky Card"
     },
     ar: {
       brand: "شجرة المغامرات",
@@ -100,14 +102,15 @@
       correct: "إجابة صحيحة!",
       wrong: "إجابة خاطئة!",
       timeUp: "انتهى الوقت!",
-      homeText: "أدخل عدد اللاعبين (2-5). كل لاعب يحصل على 5 جولات.",
+      homeText: "أدخل عدد اللاعبين (2-4). كل لاعب يحصل على 5 جولات.",
       playerCountLabel: "عدد اللاعبين",
       startRound: "ابدأ الجولة",
       playerTurn: "اللاعب {player} • الجولة {turn}/{total}",
       timer: "الوقت المتبقي: {seconds}s",
       winnerPrefix: "الفائز: ",
       tiePrefix: "تعادل:",
-      pointsText: "نقاط"
+      pointsText: "نقاط",
+      luckyCard: "كارت الحظ"
     }
   };
 
@@ -579,17 +582,6 @@
     stopQuestionTimer();
     state.roundActive = false;
 
-    const maxScore = Math.max(...state.playerScores);
-    const winners = state.playerScores
-      .map((score, idx) => ({ score, player: idx + 1 }))
-      .filter((item) => item.score === maxScore)
-      .map((item) => `Player ${item.player}`);
-
-    const scoreText = state.playerScores.map((score, idx) => `Player ${idx + 1}: ${score} points`).join(", ");
-    const winnerText = winners.length === 1 ? `${scoreText}. Winner: ${winners[0]}!` : `${scoreText}. Tie: ${winners.join(", ")}!`;
-
-    document.getElementById("roundWinner").textContent = winnerText;
-
     els.homeSection.classList.remove("hidden");
     els.gameArea.classList.add("hidden");
     els.spinBtn.disabled = true;
@@ -623,8 +615,8 @@
 
   function startRound() {
     const players = Number(els.playerCountInput.value);
-    if (!Number.isInteger(players) || players < 2 || players > 5) {
-      els.homeFeedback.textContent = "Please enter an integer from 2 to 5.";
+    if (!Number.isInteger(players) || players < 2 || players > 4) {
+      els.homeFeedback.textContent = "Please enter an integer from 2 to 4.";
       return;
     }
 
@@ -786,6 +778,32 @@
     }, 2000);
   }
 
+  function showLuckyCard() {
+    // 30% chance to show lucky card
+    if (Math.random() > 0.3) return;
+
+    const t = i18n[state.lang];
+    const luckyCard = document.createElement("div");
+    luckyCard.className = "luckyCard";
+    luckyCard.innerHTML = `
+      <div class="luckyCardInner">
+        <div class="luckyCardGoldenTag">✨ ${t.luckyCard} ✨</div>
+        <div class="luckyCardContent">
+          🍀
+        </div>
+      </div>
+    `;
+
+    els.luckyCardContainer.innerHTML = "";
+    els.luckyCardContainer.appendChild(luckyCard);
+    els.luckyCardContainer.classList.remove("hidden");
+
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+      els.luckyCardContainer.classList.add("hidden");
+    }, 2000);
+  }
+
   function computeSelectedIndexFromRotationMod(rotationModDeg) {
     const n = state.categories.length;
     const segAngleDeg = 360 / n;
@@ -879,6 +897,9 @@
 
       // Smoothly rotate center back upright to 0deg.
       updateCenterRotation(0, true);
+
+      // Show lucky card randomly
+      showLuckyCard();
 
       // Show question after wheel stops.
       showQuestionForCategory(selectedFromRotation);
