@@ -951,9 +951,7 @@
 
     els.spinBtn.addEventListener("click", startSpin);
     els.wheelWrapper.addEventListener("click", (e) => {
-      // Ignore clicks on buttons (none inside wrapper) but keep gesture consistent.
-      if (e.target && e.target.closest && e.target.closest("button")) return;
-      startSpin();
+      // Do nothing when the wheel area is clicked; spin only via the button.
     });
 
     els.choices.addEventListener("click", (e) => {
