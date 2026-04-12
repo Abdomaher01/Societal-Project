@@ -378,7 +378,6 @@ body.dark .wheelCenterOverlay{
 .homeCard {
   width: min(92vw, 540px);
   background: linear-gradient(140deg, rgba(255,255,255,.94), rgba(234,216,176,.95));
-  border: 1px solid rgba(115,90,45,.3);
   border-radius: calc(var(--radius) + 8px);
   box-shadow: var(--shadow);
   padding: 22px 18px 24px;
