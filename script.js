@@ -209,35 +209,79 @@
     wheelUI.render();
   }
 
-  async function playSpinSound() {
-    const audio = new Audio("spin.wav");
-    audio.volume = 0.7;
-    audio.playbackRate = 1.2; // Speed up by 20% to match wheel rotation
-    try {
-      await audio.play();
-    } catch (e) {
-      console.warn("Failed to play spin sound:", e);
+  // Audio management for reduced latency
+  const audioManager = {
+    spin: null,
+    win: null,
+    wrong: null,
+    spinPlaybackRate: 0.9,
+    spinDurationMs: 4000,
+    init() {
+      // Preload audio files to reduce latency
+      this.spin = new Audio("spin.wav");
+      this.win = new Audio("win.wav");
+      this.wrong = new Audio("wrong.wav");
+
+      // Configure audio settings
+      [this.spin, this.win, this.wrong].forEach(audio => {
+        audio.volume = 0.7;
+        audio.preload = 'auto';
+      });
+
+      this.spin.addEventListener("loadedmetadata", () => {
+        if (this.spin.duration && !Number.isNaN(this.spin.duration)) {
+          this.spinDurationMs = Math.max(3000, (this.spin.duration * 1000) / this.spinPlaybackRate);
+        }
+      });
+
+      // Load audio immediately
+      this.spin.load();
+      this.win.load();
+      this.wrong.load();
+    },
+    getSpinDurationMs() {
+      return this.spinDurationMs;
+    },
+    async playSpin() {
+      if (!this.spin) this.init();
+      try {
+        this.spin.currentTime = 0;
+        this.spin.playbackRate = this.spinPlaybackRate;
+        await this.spin.play();
+      } catch (e) {
+        console.warn("Failed to play spin sound:", e);
+      }
+    },
+    async playWin() {
+      if (!this.win) this.init();
+      try {
+        this.win.currentTime = 0;
+        await this.win.play();
+      } catch (e) {
+        console.warn("Failed to play win sound:", e);
+      }
+    },
+    async playWrong() {
+      if (!this.wrong) this.init();
+      try {
+        this.wrong.currentTime = 0;
+        await this.wrong.play();
+      } catch (e) {
+        console.warn("Failed to play wrong sound:", e);
+      }
     }
+  };
+
+  async function playSpinSound() {
+    await audioManager.playSpin();
   }
 
   async function playCorrectSound() {
-    const audio = new Audio("win.wav");
-    audio.volume = 0.7;
-    try {
-      await audio.play();
-    } catch (e) {
-      console.warn("Failed to play win sound:", e);
-    }
+    await audioManager.playWin();
   }
 
   async function playWrongSound() {
-    const audio = new Audio("wrong.wav");
-    audio.volume = 0.7;
-    try {
-      await audio.play();
-    } catch (e) {
-      console.warn("Failed to play wrong sound:", e);
-    }
+    await audioManager.playWrong();
   }
 
   function updateCenterContent(index) {
@@ -796,9 +840,8 @@
     const spins = WHEEL_SPINS_MIN + Math.floor(Math.random() * (WHEEL_SPINS_EXTRA + 1));
     const targetTotal = startTotal + spins * 360 + deltaMod;
 
-    // Duration synced to spin.wav with 1.2x playback speed (14950ms / 1.2 ≈ 12500ms)
-    // Both wheel and voice speed up together for tighter synchronization
-    const durationMs = state.isReducedMotion ? 1000 : 12500;
+    // Use the actual spin audio duration (adjusted by playback rate) if available.
+    const durationMs = state.isReducedMotion ? 800 : Math.max(1200, audioManager.getSpinDurationMs());
     const startTime = performance.now();
 
     function frame(now) {
@@ -901,6 +944,9 @@
       els.spinBtn.disabled = true;
       return;
     }
+
+    // Initialize audio manager for reduced latency
+    audioManager.init();
 
     // Initial UI
     els.questionText.textContent = i18n[state.lang].clickWheel;

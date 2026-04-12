@@ -49,6 +49,10 @@ html, body{
   width:100%;
   min-width:100%;
   height:100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling on iOS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body{
@@ -57,6 +61,8 @@ body{
   color:var(--text);
   background: url("./forest-bg.jpg") center/cover fixed no-repeat;
   overflow-x:hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 body::before{
@@ -627,6 +633,31 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
 @media (max-width: 640px){
   .choices{ grid-template-columns: 1fr; }
   .wheelPointer{ top: -8px; }
+  body{
+    background-attachment: scroll; /* Fix background image glitches on mobile */
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Prevent horizontal scroll issues on mobile */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Improve touch interactions */
+  button, .choiceBtn {
+    min-height: 44px; /* iOS touch target minimum */
+    touch-action: manipulation;
+  }
+
+  /* Canvas optimizations for mobile */
+  canvas {
+    touch-action: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
