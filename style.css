@@ -56,6 +56,14 @@ html, body{
   -moz-osx-font-smoothing: grayscale;
   background: #0c1810 url("./forest-bg.jpg") center/cover fixed no-repeat;
   background-size: cover;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 body{
