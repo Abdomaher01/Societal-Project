@@ -48,7 +48,8 @@ body.dark{
 html, body{
   width:100%;
   min-width:100%;
-  height:100%;
+  height:auto;
+  min-height: 100vh;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%; /* Prevent font scaling on iOS */
   -webkit-font-smoothing: antialiased;
@@ -59,7 +60,7 @@ body{
   margin:0;
   font-family: 'Georgia', serif;
   color:var(--text);
-  background: url("./forest-bg.jpg") center/cover fixed no-repeat;
+  background: url("./forest-bg.jpg") center top/cover no-repeat;
   overflow-x:hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -72,7 +73,7 @@ body::before{
   background-color: rgba(10, 12, 10, .26);
   backdrop-filter: blur(3px);
   pointer-events: none;
-  z-index:-1;
+  z-index: 1;
 }
 
 body.dark{
@@ -89,17 +90,10 @@ body.dark{
 }
 
 
-body.dark{
-  --bg0:#070b18;
-  --bg1:#11061b;
-  --panel:#0f1633cc;
-  --panelSolid:#0f1633;
-  --text:#eef2ff;
-  --muted:#b6bfd6;
-  --border:rgba(238,242,255,.12);
-  --shadow: 0 18px 55px rgba(0,0,0,.40);
-  --wheelOuterBorder: rgba(15,22,51,.70);
-  --wheelGlow: rgba(79,124,255,.28);
+main.page {
+  position: relative;
+  z-index: 2;
+  background: transparent;
 }
 
 .topbar{
@@ -634,9 +628,9 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
   .choices{ grid-template-columns: 1fr; }
   .wheelPointer{ top: -8px; }
   body{
-    background-attachment: scroll; /* Fix background image glitches on mobile */
+    background-attachment: local;
     background-size: cover;
-    background-position: center;
+    background-position: center top;
   }
 
   /* Prevent horizontal scroll issues on mobile */
