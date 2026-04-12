@@ -90,7 +90,9 @@
       pointsText: "points",
       luckyCard: "Lucky Card",
       spinForNext: "Spin the wheel for the next question.",
-      spinForFirst: "Spin the wheel to get your first question."
+      spinForFirst: "Spin the wheel to get your first question.",
+      playerCountError: "Please enter an integer from 2 to 4.",
+      questionAdjust: "Only {count} unique questions available; round turns adjusted to {count}."
     },
     ar: {
       brand: "شجرة المغامرات",
@@ -114,7 +116,9 @@
       pointsText: "نقاط",
       luckyCard: "كارت الحظ",
       spinForNext: "ادر العجلة للحصول على السؤال التالي.",
-      spinForFirst: "ادر العجلة للحصول على سؤالك الأول."
+      spinForFirst: "ادر العجلة للحصول على سؤالك الأول.",
+      playerCountError: "يرجى إدخال عدد صحيح من 2 إلى 4.",
+      questionAdjust: "يوجد {count} أسئلة فريدة فقط متاحة؛ تم تعديل أدوار الجولة إلى {count}."
     }
   };
 
@@ -559,17 +563,24 @@
     stopQuestionTimer();
     state.roundActive = false;
 
-    els.homeSection.classList.remove("hidden");
-    els.gameArea.classList.add("hidden");
-    els.spinBtn.disabled = true;
-    els.questionText.textContent = i18n[state.lang].clickWheel;
-    els.feedback.textContent = "";
+    // Fade out game area smoothly
+    els.gameArea.classList.add("fade-out");
+    
+    setTimeout(() => {
+      els.gameArea.classList.add("hidden");
+      els.gameArea.classList.remove("fade-out", "slide-in");
+      els.homeSection.classList.remove("hidden");
+      els.homeSection.style.opacity = '0';
+      els.homeSection.classList.add("fade-in");
+      els.spinBtn.disabled = true;
+      els.questionText.textContent = i18n[state.lang].clickWheel;
+      els.feedback.textContent = "";
+    }, 250);
   }
 
   function handleTurnComplete() {
     stopQuestionTimer();
     state.currentTurn += 1;
-    updateRoundStatus();
 
     const totalQuestions = state.categories.reduce((sum, c) => sum + (c.questions ? c.questions.length : 0), 0);
     if (state.currentTurn > state.turnsTotal || state.askedQuestions.size >= totalQuestions) {
@@ -581,19 +592,41 @@
     state.currentPlayer = (state.currentPlayer % state.playerCount) + 1;
     state.currentQuestion = null;
     state.currentQuestionIndex = null;
-    updateRoundStatus();
-    els.feedback.textContent = "";
-    els.questionText.textContent = i18n[state.lang].spinForNext;
-    els.questionMeta.textContent = "";
-    els.choices.innerHTML = "";
-    els.spinBtn.disabled = false;
-    els.timerInfo.textContent = i18n[state.lang].timer.replace("{seconds}", 15);
+    
+    // Smooth transition animation for turn change
+    els.choices.classList.add("fade-out");
+    els.feedback.classList.add("fade-out");
+    els.questionText.classList.add("fade-out");
+    els.questionMeta.classList.add("fade-out");
+    
+    setTimeout(() => {
+      els.feedback.textContent = "";
+      els.questionText.textContent = i18n[state.lang].spinForNext;
+      els.questionMeta.textContent = "";
+      els.choices.innerHTML = "";
+      els.choices.classList.remove("fade-out", "fade-in");
+      els.feedback.classList.remove("fade-out", "fade-in");
+      els.questionText.classList.remove("fade-out", "fade-in");
+      els.questionMeta.classList.remove("fade-out", "fade-in");
+      els.choices.style.opacity = '0';
+      els.feedback.style.opacity = '0';
+      els.questionText.style.opacity = '0';
+      els.questionMeta.style.opacity = '0';
+      els.choices.classList.add("fade-in");
+      els.feedback.classList.add("fade-in");
+      els.questionText.classList.add("fade-in");
+      els.questionMeta.classList.add("fade-in");
+      
+      updateRoundStatus();
+      els.spinBtn.disabled = false;
+      els.timerInfo.textContent = i18n[state.lang].timer.replace("{seconds}", 15);
+    }, 400);
   }
 
   function startRound() {
     const players = Number(els.playerCountInput.value);
     if (!Number.isInteger(players) || players < 2 || players > 4) {
-      els.homeFeedback.textContent = "Please enter an integer from 2 to 4.";
+      els.homeFeedback.textContent = i18n[state.lang].playerCountError;
       return;
     }
 
@@ -604,7 +637,7 @@
     const totalQuestions = state.categories.reduce((sum, c) => sum + (c.questions ? c.questions.length : 0), 0);
     if (state.turnsTotal > totalQuestions) {
       state.turnsTotal = totalQuestions;
-      els.homeFeedback.textContent = `Only ${totalQuestions} unique questions available; round turns adjusted to ${totalQuestions}.`;
+      els.homeFeedback.textContent = i18n[state.lang].questionAdjust.replace(/{count}/g, totalQuestions);
     }
     state.currentTurn = 1;
     state.askedQuestions = new Set();
@@ -614,21 +647,30 @@
     state.currentQuestion = null;
     state.currentQuestionIndex = null;
 
-    els.homeSection.classList.add("hidden");
-    els.gameArea.classList.remove("hidden");
-    // make sure visible wheel has exact device-scaled resolution
-    wheelUI.resize();
-    wheelUI.render();
+    // Fade out home section smoothly
+    els.homeSection.classList.add("fade-out");
+    
+    setTimeout(() => {
+      els.homeSection.classList.add("hidden");
+      els.homeSection.classList.remove("fade-out", "fade-in", "slide-in");
+      els.gameArea.classList.remove("hidden");
+      els.gameArea.style.opacity = '0';
+      els.gameArea.classList.add("slide-in");
+      
+      // make sure visible wheel has exact device-scaled resolution
+      wheelUI.resize();
+      wheelUI.render();
 
-    els.feedback.textContent = "";
-    document.getElementById("roundWinner").textContent = "";
+      els.feedback.textContent = "";
+      document.getElementById("roundWinner").textContent = "";
 
-    updateRoundStatus();
-    els.questionText.textContent = i18n[state.lang].spinForFirst;
-    els.questionMeta.textContent = "";
-    els.choices.innerHTML = "";
-    els.spinBtn.disabled = false;
-    els.homeFeedback.textContent = "";
+      updateRoundStatus();
+      els.questionText.textContent = i18n[state.lang].spinForFirst;
+      els.questionMeta.textContent = "";
+      els.choices.innerHTML = "";
+      els.spinBtn.disabled = false;
+      els.homeFeedback.textContent = "";
+    }, 250);
   }
 
   async function onQuestionTimeout() {
@@ -668,6 +710,17 @@
       btn.dataset.choiceIndex = String(idx);
       els.choices.appendChild(btn);
     });
+
+    // Add smooth animation to question appearance
+    els.questionText.classList.remove("slide-in", "fade-in", "fade-out");
+    els.choices.classList.remove("slide-in", "fade-in", "fade-out");
+    
+    // Trigger reflow to restart animation
+    void els.questionText.offsetWidth;
+    void els.choices.offsetWidth;
+    
+    els.questionText.classList.add("slide-in");
+    els.choices.classList.add("slide-in");
 
     // Render LaTeX math expressions if MathJax is loaded.
     typesetMath();

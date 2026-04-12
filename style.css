@@ -60,7 +60,7 @@ body{
   margin:0;
   font-family: 'Georgia', serif;
   color:var(--text);
-  background: url("./forest-bg.jpg") center top/cover no-repeat;
+  background: url("./forest-bg.jpg") center/cover fixed no-repeat;
   overflow-x:hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -624,13 +624,59 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
   }
 }
 
+@keyframes fadeIn{
+  from{
+    opacity: 0;
+  }
+  to{
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut{
+  from{
+    opacity: 1;
+  }
+  to{
+    opacity: 0;
+  }
+}
+
+@keyframes slideInUp{
+  from{
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation states */
+.fade-in{
+  animation: fadeIn 0.5s ease-out forwards !important;
+}
+
+.fade-out{
+  animation: fadeOut 0.4s ease-in forwards !important;
+}
+
+.slide-in{
+  animation: slideInUp 0.4s ease-out forwards !important;
+}
+
+#homeSection, #gameArea{
+  animation: fadeIn 0.4s ease-out;
+}
+
 @media (max-width: 640px){
   .choices{ grid-template-columns: 1fr; }
   .wheelPointer{ top: -8px; }
   body{
-    background-attachment: local;
+    background-attachment: fixed;
     background-size: cover;
-    background-position: center top;
+    background-position: center;
   }
 
   /* Prevent horizontal scroll issues on mobile */
