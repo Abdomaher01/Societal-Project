@@ -48,22 +48,33 @@ body.dark{
 html, body{
   width:100%;
   min-width:100%;
-  height:auto;
-  min-height: 100vh;
+  height:100%;
+  min-height: 100%;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%; /* Prevent font scaling on iOS */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #0c1810;
 }
 
 body{
+  position: relative;
   margin:0;
   font-family: 'Georgia', serif;
   color:var(--text);
-  background: url("./forest-bg.jpg") center/cover fixed no-repeat;
   overflow-x:hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+body::after{
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url("./forest-bg.jpg") center/cover no-repeat;
+  background-size: cover;
+  z-index: 0;
+  pointer-events: none;
 }
 
 body::before{
@@ -673,11 +684,6 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
 @media (max-width: 640px){
   .choices{ grid-template-columns: 1fr; }
   .wheelPointer{ top: -8px; }
-  body{
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center;
-  }
 
   /* Prevent horizontal scroll issues on mobile */
   * {
