@@ -99,6 +99,13 @@
     <script src="./data.js"></script>
     <script src="./script.js"></script>
     <script>
+      function updateViewportHeight() {
+        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      }
+      updateViewportHeight();
+      window.addEventListener('resize', updateViewportHeight);
+    </script>
+    <script>
       window.MathJax = {
         tex: {
           inlineMath: [['$','$'], ['\\(','\\)']],
