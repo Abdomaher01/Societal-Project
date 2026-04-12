@@ -118,27 +118,6 @@
     }
   };
 
-  const audio = {
-    ctx: null,
-    ensure() {
-      if (this.ctx) return this.ctx;
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return null;
-      this.ctx = new Ctx();
-      return this.ctx;
-    },
-    async resume() {
-      const ctx = this.ensure();
-      if (!ctx) return false;
-      if (ctx.state === "suspended") await ctx.resume();
-      return true;
-    },
-    setGain(gainNode, t, from, to, dur) {
-      gainNode.gain.setValueAtTime(from, t);
-      gainNode.gain.exponentialRampToValueAtTime(Math.max(to, 0.0001), t + dur);
-    }
-  };
-
   function mod(n, m) {
     return ((n % m) + m) % m;
   }
@@ -231,84 +210,34 @@
   }
 
   async function playSpinSound() {
-    if (!(await audio.resume())) return;
-    const ctx = audio.ctx;
-    if (!ctx) return;
-    const now = ctx.currentTime;
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
-
-    osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(320, now);
-    osc.frequency.exponentialRampToValueAtTime(80, now + 0.5);
-
-    filter.type = "bandpass";
-    filter.frequency.setValueAtTime(400, now);
-    filter.Q.setValueAtTime(1.2, now);
-
-    gain.gain.setValueAtTime(0.0001, now);
-    audio.setGain(gain, now, 0.0001, 0.22, 0.20);
-    audio.setGain(gain, now + 0.20, 0.22, 0.0001, 0.28);
-
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.58);
+    const audio = new Audio("spin.wav");
+    audio.volume = 0.7;
+    audio.playbackRate = 1.2; // Speed up by 20% to match wheel rotation
+    try {
+      await audio.play();
+    } catch (e) {
+      console.warn("Failed to play spin sound:", e);
+    }
   }
 
   async function playCorrectSound() {
-    if (!(await audio.resume())) return;
-    const ctx = audio.ctx;
-    if (!ctx) return;
-    const now = ctx.currentTime;
-
-    const freqs = state.isDark ? [620, 980] : [560, 920];
-    freqs.forEach((f, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(f, now + i * 0.06);
-      gain.gain.setValueAtTime(0.0001, now + i * 0.06);
-      audio.setGain(gain, now + i * 0.06, 0.0001, 0.26, 0.07);
-      audio.setGain(gain, now + i * 0.13, 0.26, 0.0001, 0.10);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now + i * 0.06);
-      osc.stop(now + 0.25);
-    });
+    const audio = new Audio("win.wav");
+    audio.volume = 0.7;
+    try {
+      await audio.play();
+    } catch (e) {
+      console.warn("Failed to play win sound:", e);
+    }
   }
 
   async function playWrongSound() {
-    if (!(await audio.resume())) return;
-    const ctx = audio.ctx;
-    if (!ctx) return;
-    const now = ctx.currentTime;
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
-
-    osc.type = "square";
-    osc.frequency.setValueAtTime(220, now);
-    osc.frequency.exponentialRampToValueAtTime(130, now + 0.18);
-    osc.frequency.exponentialRampToValueAtTime(170, now + 0.40);
-
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(520, now);
-    filter.Q.setValueAtTime(0.85, now);
-
-    gain.gain.setValueAtTime(0.0001, now);
-    audio.setGain(gain, now, 0.0001, 0.26, 0.06);
-    audio.setGain(gain, now + 0.06, 0.26, 0.0001, 0.30);
-
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.50);
+    const audio = new Audio("wrong.wav");
+    audio.volume = 0.7;
+    try {
+      await audio.play();
+    } catch (e) {
+      console.warn("Failed to play wrong sound:", e);
+    }
   }
 
   function updateCenterContent(index) {
@@ -853,7 +782,7 @@
     updateCenterRotation(state.wheelRotationTotalDeg, false);
 
     // Audio must be tied to user gesture; this runs inside click.
-    void playSpinSound();
+    playSpinSound();
 
     const startTotal = state.wheelRotationTotalDeg;
     const currentMod = state.wheelRotationModDeg;
@@ -867,7 +796,9 @@
     const spins = WHEEL_SPINS_MIN + Math.floor(Math.random() * (WHEEL_SPINS_EXTRA + 1));
     const targetTotal = startTotal + spins * 360 + deltaMod;
 
-    const durationMs = state.isReducedMotion ? 800 : clamp(3800 + spins * 180, 4200, 5600);
+    // Duration synced to spin.wav with 1.2x playback speed (14950ms / 1.2 ≈ 12500ms)
+    // Both wheel and voice speed up together for tighter synchronization
+    const durationMs = state.isReducedMotion ? 1000 : 12500;
     const startTime = performance.now();
 
     function frame(now) {
