@@ -76,8 +76,10 @@ body::-webkit-scrollbar {
 #background {
   position: fixed;
   inset: 0;
-  background: #0c1810 url("./forest-bg.jpg") center top / cover no-repeat;
-  background-attachment: fixed;
+  background: #0c1810 url("./forest-bg-portrait.jpg") center top / cover no-repeat;
+  background-attachment: scroll;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   z-index: -2;
   pointer-events: none;
 }
@@ -740,13 +742,7 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
   }
-
-  /* Fix background scrolling glitch on mobile */
-  #background {
-    background-attachment: scroll;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
+}
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -757,5 +753,14 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
 @media (max-width: 420px){
   .pillBtn__text{ display:none; }
   .pillBtn{ padding: 10px 12px; }
+}
+
+@media (min-width: 641px){
+  #background {
+    background-image: url("./forest-bg-landscape.jpg");
+    background-attachment: fixed;
+    -webkit-transform: none;
+    transform: none;
+  }
 }
 
