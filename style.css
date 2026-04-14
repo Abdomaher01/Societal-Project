@@ -744,6 +744,8 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
   /* Fix background scrolling glitch on mobile */
   #background {
     background-attachment: scroll;
+    background-image: none;
+    background-color: #0c1810;
   }
 }
 
