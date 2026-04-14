@@ -740,6 +740,11 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Fix background scrolling glitch on mobile */
+  #background {
+    background-attachment: scroll;
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
