@@ -74,14 +74,14 @@ body::-webkit-scrollbar {
 }
 
 #background {
-  position: fixed;
-  inset: 0;
-  background: #0c1810 url("./forest-bg-portrait.jpg") center top / 100% 100% no-repeat;
-  background-attachment: scroll;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: -2;
   pointer-events: none;
+  background: transparent;
 }
 
 body{
@@ -94,6 +94,10 @@ body{
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   background-color: #0c1810;
+  background: #0c1810 url("./forest-bg-portrait.jpg") center top / 100% 100% no-repeat;
+  background-attachment: local;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 body::before{
@@ -756,7 +760,7 @@ body.dark .choiceBtn{ background: rgba(255,255,255,.06); }
 }
 
 @media (min-width: 641px){
-  #background {
+  body {
     background-image: url("./forest-bg-landscape.jpg");
     background-attachment: fixed;
     -webkit-transform: none;
