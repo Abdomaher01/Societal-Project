@@ -760,7 +760,11 @@
     els.spinBtn.disabled = true;
     disableAnswerButtons(false);
 
-    startQuestionTimer();
+    // Delay timer start if lucky card is showing
+    const luckyCardDelay = !els.luckyCardContainer.classList.contains("hidden") ? 2000 : 0;
+    setTimeout(() => {
+      startQuestionTimer();
+    }, luckyCardDelay);
   }
 
   async function onChooseAnswer(choiceIndex) {
