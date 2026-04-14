@@ -76,7 +76,7 @@ body::-webkit-scrollbar {
 #background {
   position: fixed;
   inset: 0;
-  background: #0c1810 url("./forest-bg-portrait.jpg") center top / cover no-repeat;
+  background: #0c1810 url("./forest-bg-portrait.jpg") center top / 100% 100% no-repeat;
   background-attachment: scroll;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
