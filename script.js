@@ -67,6 +67,39 @@
     wheelRotationTotalDeg: 0
   };
 
+  /** Per-round dedupe: never the same slot twice; never the same English stem twice (cross-category). */
+  function slotRoundKey(categoryIndex, questionIndex) {
+    return `slot:${categoryIndex}-${questionIndex}`;
+  }
+
+  function textRoundKey(question) {
+    const en = question && question.question && question.question.en;
+    if (typeof en !== "string") return "";
+    const s = en.trim().replace(/\s+/g, " ");
+    return s ? `text:${s}` : "";
+  }
+
+  function isQuestionUsedThisRound(categoryIndex, questionIndex, question) {
+    if (state.askedQuestions.has(slotRoundKey(categoryIndex, questionIndex))) return true;
+    const tk = textRoundKey(question);
+    if (tk && state.askedQuestions.has(tk)) return true;
+    return false;
+  }
+
+  function markQuestionAskedThisRound(categoryIndex, questionIndex, question) {
+    state.askedQuestions.add(slotRoundKey(categoryIndex, questionIndex));
+    const tk = textRoundKey(question);
+    if (tk) state.askedQuestions.add(tk);
+  }
+
+  function countAskedSlotsThisRound() {
+    let n = 0;
+    for (const k of state.askedQuestions) {
+      if (k.startsWith("slot:")) n += 1;
+    }
+    return n;
+  }
+
   const i18n = {
     en: {
       brand: "TreeVenture",
@@ -542,7 +575,9 @@
       const idx = (start + offset) % total;
       const category = state.categories[idx];
       if (!category) continue;
-      const hasLeft = category.questions.some((_, qIdx) => !state.askedQuestions.has(`${idx}-${qIdx}`));
+      const hasLeft = category.questions.some(
+        (q, qIdx) => !isQuestionUsedThisRound(idx, qIdx, q)
+      );
       if (hasLeft) return idx;
     }
     return null;
@@ -553,7 +588,7 @@
     if (!category) return null;
     const available = category.questions
       .map((q, qIdx) => ({ q, qIdx }))
-      .filter(({qIdx}) => !state.askedQuestions.has(`${categoryIndex}-${qIdx}`));
+      .filter(({ q, qIdx }) => !isQuestionUsedThisRound(categoryIndex, qIdx, q));
     if (!available.length) return null;
     const pick = available[Math.floor(Math.random() * available.length)];
     return { question: pick.q, categoryIndex, questionIndex: pick.qIdx };
@@ -583,7 +618,7 @@
     state.currentTurn += 1;
 
     const totalQuestions = state.categories.reduce((sum, c) => sum + (c.questions ? c.questions.length : 0), 0);
-    if (state.currentTurn > state.turnsTotal || state.askedQuestions.size >= totalQuestions) {
+    if (state.currentTurn > state.turnsTotal || countAskedSlotsThisRound() >= totalQuestions) {
       completeRound();
       return;
     }
@@ -689,9 +724,7 @@
     await playWrongSound();
 
     // Mark current question as asked (if set)
-    if (state.currentCategoryIndex != null && state.currentQuestionIndex != null) {
-      state.askedQuestions.add(`${state.currentCategoryIndex}-${state.currentQuestionIndex}`);
-    }
+    // Question already marked used when shown (see showQuestionForCategory).
 
     // Delay to show the correct answer before proceeding
     setTimeout(() => {
@@ -755,6 +788,8 @@
       return;
     }
 
+    markQuestionAskedThisRound(availableIndex, chosen.questionIndex, chosen.question);
+
     state.currentCategoryIndex = availableIndex;
     state.currentQuestion = chosen.question;
     state.currentQuestionIndex = chosen.questionIndex;
@@ -807,9 +842,7 @@
       await playWrongSound();
     }
 
-    if (state.currentCategoryIndex != null && state.currentQuestionIndex != null) {
-      state.askedQuestions.add(`${state.currentCategoryIndex}-${state.currentQuestionIndex}`);
-    }
+    // Question already marked used when shown (see showQuestionForCategory).
 
     // Prepare next turn; enough feedback time to read it.
     setTimeout(() => {

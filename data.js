@@ -208,10 +208,10 @@ window.QUIZ_DATA = {
       {
         question: { en: "What is the chemical formula for water?", ar: "ما هي الصيغة الكيميائية للماء؟" },
         choices: [
-          { en: "CO2", ar: "ثاني أكسيد الكربون" },
-          { en: "H2O", ar: "الماء" },
-          { en: "NaCl", ar: "كلوريد الصوديوم" },
-          { en: "O2", ar: "الأكسجين" }
+          { en: "CO2", ar: "CO2" },
+          { en: "H2O", ar: "H2O" },
+          { en: "NaCl", ar: "NaCl" },
+          { en: "O2", ar: "O2" }
         ],
         correctAnswer: 1
       },
