@@ -660,6 +660,11 @@
       // make sure visible wheel has exact device-scaled resolution
       wheelUI.resize();
       wheelUI.render();
+      // After `display` toggles, layout/DPR can settle one frame late on mobile — remeasure once.
+      requestAnimationFrame(() => {
+        wheelUI.resize();
+        wheelUI.render();
+      });
 
       els.feedback.textContent = "";
       document.getElementById("roundWinner").textContent = "";
@@ -1026,6 +1031,7 @@
       wheelUI.render();
     }, 120);
     window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
 
     initInteractions();
     applyTranslations();

@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>TreeVenture</title>
     <link rel="stylesheet" href="./style.css" />
     <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
@@ -98,15 +98,6 @@
 
     <script src="./data.js"></script>
     <script src="./script.js"></script>
-    <script>
-      function updateViewportHeight() {
-        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-      }
-      updateViewportHeight();
-      window.addEventListener('resize', updateViewportHeight);
-      window.addEventListener('orientationchange', updateViewportHeight);
-      window.addEventListener('scroll', updateViewportHeight, { passive: true });
-    </script>
     <script>
       window.MathJax = {
         tex: {
