@@ -324,7 +324,7 @@ html[dir="rtl"] .topbar__right{ order: 1; }
   height: 0;
   border-left: 13px solid transparent;
   border-right: 13px solid transparent;
-  border-bottom: 26px solid #c49b4f; /* flat color, no transparent highlight */
+  border-top: 26px solid #c49b4f; /* flipped to point into the wheel */
   box-shadow: none; /* remove bright spot effect */
   z-index:3;
 }
